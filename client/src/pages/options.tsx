@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -27,13 +28,13 @@ export default function Options() {
           <CardTitle>Recommended Options Plays</CardTitle>
         </CardHeader>
         <CardContent>
-          {plays.length === 0 ? (
+          {(plays as any[]).length === 0 ? (
             <div className="text-center py-8 text-neutral">
               <p>No options plays available at the moment.</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {plays.map((play: any) => {
+              {(plays as any[]).map((play: any) => {
                 const isCall = play.type === 'call';
                 const potentialReturn = parseFloat(play.potentialReturn || '0');
                 
@@ -119,30 +120,106 @@ export default function Options() {
       </Card>
 
       {/* Options Education */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Options Trading Guidelines</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium mb-3 text-success">Popular Strategies</h4>
+                <div className="space-y-3">
+                  <div className="p-3 border rounded-lg">
+                    <h5 className="font-medium text-sm">Covered Call</h5>
+                    <p className="text-xs text-neutral">Own stock + sell call option for income</p>
+                    <p className="text-xs text-success">Best for: Neutral to slightly bullish outlook</p>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <h5 className="font-medium text-sm">Cash-Secured Put</h5>
+                    <p className="text-xs text-neutral">Sell put while holding cash to buy shares</p>
+                    <p className="text-xs text-success">Best for: Want to own stock at lower price</p>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <h5 className="font-medium text-sm">Protective Put</h5>
+                    <p className="text-xs text-neutral">Own stock + buy put for downside protection</p>
+                    <p className="text-xs text-success">Best for: Portfolio insurance</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-medium mb-3 text-warning">Risk Management</h4>
+                <ul className="space-y-2 text-sm text-neutral">
+                  <li>• Position size: Max 2-5% of portfolio per trade</li>
+                  <li>• Monitor implied volatility percentile</li>
+                  <li>• Set profit targets (25-50% of max profit)</li>
+                  <li>• Use stop losses at 2x credit received</li>
+                  <li>• Avoid earnings announcements unless intended</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Option Greeks Explained</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h5 className="font-medium text-blue-800 mb-2">Delta (Δ)</h5>
+                <p className="text-sm text-blue-700 mb-1">Price sensitivity to underlying stock movement</p>
+                <p className="text-xs text-blue-600">Range: 0 to 1 (calls), 0 to -1 (puts)</p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h5 className="font-medium text-green-800 mb-2">Gamma (Γ)</h5>
+                <p className="text-sm text-green-700 mb-1">Rate of change of delta</p>
+                <p className="text-xs text-green-600">Higher near expiration and at-the-money</p>
+              </div>
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <h5 className="font-medium text-purple-800 mb-2">Theta (Θ)</h5>
+                <p className="text-sm text-purple-700 mb-1">Time decay - option value lost per day</p>
+                <p className="text-xs text-purple-600">Always negative for long options</p>
+              </div>
+              <div className="p-4 bg-orange-50 rounded-lg">
+                <h5 className="font-medium text-orange-800 mb-2">Vega (υ)</h5>
+                <p className="text-sm text-orange-700 mb-1">Sensitivity to implied volatility changes</p>
+                <p className="text-xs text-orange-600">Higher for longer-dated options</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Options Calculator */}
       <Card>
         <CardHeader>
-          <CardTitle>Options Trading Guidelines</CardTitle>
+          <CardTitle>Quick Options Calculator</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-4 gap-4 mb-4">
             <div>
-              <h4 className="font-medium mb-2 text-success">Key Strategies</h4>
-              <ul className="space-y-1 text-sm text-neutral">
-                <li>• Covered calls for income generation</li>
-                <li>• Cash-secured puts for entry points</li>
-                <li>• Protective puts for downside protection</li>
-                <li>• Iron condors for range-bound markets</li>
-              </ul>
+              <label className="text-sm font-medium">Stock Price</label>
+              <input type="number" className="w-full p-2 border rounded" placeholder="100.00" />
             </div>
             <div>
-              <h4 className="font-medium mb-2 text-warning">Risk Management</h4>
-              <ul className="space-y-1 text-sm text-neutral">
-                <li>• Never risk more than 2% per trade</li>
-                <li>• Monitor IV percentile before entry</li>
-                <li>• Set profit targets and stop losses</li>
-                <li>• Avoid trading during low liquidity</li>
-              </ul>
+              <label className="text-sm font-medium">Strike Price</label>
+              <input type="number" className="w-full p-2 border rounded" placeholder="105.00" />
             </div>
+            <div>
+              <label className="text-sm font-medium">Days to Expiration</label>
+              <input type="number" className="w-full p-2 border rounded" placeholder="30" />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Implied Volatility (%)</label>
+              <input type="number" className="w-full p-2 border rounded" placeholder="25" />
+            </div>
+          </div>
+          <div className="flex space-x-2">
+            <Button>Calculate Call</Button>
+            <Button variant="outline">Calculate Put</Button>
+            <Button variant="outline">Greeks</Button>
           </div>
         </CardContent>
       </Card>

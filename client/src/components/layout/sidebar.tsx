@@ -8,7 +8,8 @@ import {
   Search, 
   Layers,
   Settings,
-  BarChart3
+  BarChart3,
+  BookOpen
 } from "lucide-react";
 
 const navigation = [
@@ -18,6 +19,7 @@ const navigation = [
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "Screener", href: "/screener", icon: Search },
   { name: "Options", href: "/options", icon: Layers },
+  { name: "Education", href: "/education", icon: BookOpen },
 ];
 
 export default function Sidebar() {
@@ -47,16 +49,14 @@ export default function Sidebar() {
             
             return (
               <li key={item.name}>
-                <Link href={item.href}>
-                  <a className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
-                    isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-gray-700 hover:bg-gray-100"
-                  )}>
-                    <Icon className="w-5 h-5" />
-                    <span>{item.name}</span>
-                  </a>
+                <Link href={item.href} className={cn(
+                  "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
+                  isActive 
+                    ? "bg-primary/10 text-primary" 
+                    : "text-gray-700 hover:bg-gray-100"
+                )}>
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
                 </Link>
               </li>
             );

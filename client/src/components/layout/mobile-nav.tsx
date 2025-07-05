@@ -5,7 +5,8 @@ import {
   Briefcase, 
   Newspaper, 
   Search, 
-  Layers
+  Layers,
+  BookOpen
 } from "lucide-react";
 
 const navigation = [
@@ -13,7 +14,7 @@ const navigation = [
   { name: "Portfolio", href: "/portfolio", icon: Briefcase },
   { name: "News", href: "/news", icon: Newspaper },
   { name: "Screen", href: "/screener", icon: Search },
-  { name: "Options", href: "/options", icon: Layers },
+  { name: "Learn", href: "/education", icon: BookOpen },
 ];
 
 export default function MobileNav() {
@@ -27,16 +28,14 @@ export default function MobileNav() {
           const Icon = item.icon;
           
           return (
-            <Link key={item.name} href={item.href}>
-              <a className={cn(
-                "flex flex-col items-center justify-center h-full transition-colors",
-                isActive 
-                  ? "text-primary" 
-                  : "text-neutral hover:text-primary"
-              )}>
-                <Icon className="h-5 w-5 mb-1" />
-                <span className="text-xs font-medium">{item.name}</span>
-              </a>
+            <Link key={item.name} href={item.href} className={cn(
+              "flex flex-col items-center justify-center h-full transition-colors",
+              isActive 
+                ? "text-primary" 
+                : "text-neutral hover:text-primary"
+            )}>
+              <Icon className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium">{item.name}</span>
             </Link>
           );
         })}

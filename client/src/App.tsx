@@ -11,6 +11,7 @@ import News from "@/pages/news";
 import Calendar from "@/pages/calendar";
 import Screener from "@/pages/screener";
 import Options from "@/pages/options";
+import Education from "@/pages/education";
 import Sidebar from "@/components/layout/sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNav from "@/components/layout/mobile-nav";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/calendar" component={Calendar} />
       <Route path="/screener" component={Screener} />
       <Route path="/options" component={Options} />
+      <Route path="/education" component={Education} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -35,7 +37,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           {isMobile && <MobileHeader />}
           
           <div className="flex min-h-screen">
