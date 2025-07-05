@@ -7,6 +7,8 @@ import {
   type MarketMover, type InsertMarketMover,
   type OptionsPlay, type InsertOptionsPlay
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -260,4 +262,114 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getPortfolioPositions(userId: number): Promise<PortfolioPosition[]> {
+    return await db.select().from(portfolioPositions).where(eq(portfolioPositions.userId, userId));
+  }
+
+  async getPortfolioPosition(id: number): Promise<PortfolioPosition | undefined> {
+    const [position] = await db.select().from(portfolioPositions).where(eq(portfolioPositions.id, id));
+    return position || undefined;
+  }
+
+  async createPortfolioPosition(insertPosition: InsertPortfolioPosition): Promise<PortfolioPosition> {
+    const [position] = await db
+      .insert(portfolioPositions)
+      .values(insertPosition)
+      .returning();
+    return position;
+  }
+
+  async updatePortfolioPosition(id: number, updates: Partial<PortfolioPosition>): Promise<PortfolioPosition | undefined> {
+    const [position] = await db
+      .update(portfolioPositions)
+      .set(updates)
+      .where(eq(portfolioPositions.id, id))
+      .returning();
+    return position || undefined;
+  }
+
+  async deletePortfolioPosition(id: number): Promise<boolean> {
+    const result = await db.delete(portfolioPositions).where(eq(portfolioPositions.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getMarketNews(limit = 10): Promise<MarketNews[]> {
+    return await db.select().from(marketNews).orderBy(desc(marketNews.publishedAt)).limit(limit);
+  }
+
+  async createMarketNews(insertNews: InsertMarketNews): Promise<MarketNews> {
+    const [news] = await db
+      .insert(marketNews)
+      .values(insertNews)
+      .returning();
+    return news;
+  }
+
+  async getEconomicEvents(limit = 10): Promise<EconomicEvent[]> {
+    return await db.select().from(economicEvents).orderBy(desc(economicEvents.date)).limit(limit);
+  }
+
+  async createEconomicEvent(insertEvent: InsertEconomicEvent): Promise<EconomicEvent> {
+    const [event] = await db
+      .insert(economicEvents)
+      .values(insertEvent)
+      .returning();
+    return event;
+  }
+
+  async getMarketMovers(limit = 10): Promise<MarketMover[]> {
+    return await db.select().from(marketMovers).orderBy(desc(marketMovers.id)).limit(limit);
+  }
+
+  async createMarketMover(insertMover: InsertMarketMover): Promise<MarketMover> {
+    const [mover] = await db
+      .insert(marketMovers)
+      .values(insertMover)
+      .returning();
+    return mover;
+  }
+
+  async updateMarketMovers(movers: InsertMarketMover[]): Promise<MarketMover[]> {
+    // Clear existing movers and insert new ones
+    await db.delete(marketMovers);
+    if (movers.length === 0) return [];
+    
+    return await db
+      .insert(marketMovers)
+      .values(movers)
+      .returning();
+  }
+
+  async getOptionsPlays(limit = 10): Promise<OptionsPlay[]> {
+    return await db.select().from(optionsPlays).orderBy(desc(optionsPlays.id)).limit(limit);
+  }
+
+  async createOptionsPlay(insertPlay: InsertOptionsPlay): Promise<OptionsPlay> {
+    const [play] = await db
+      .insert(optionsPlays)
+      .values(insertPlay)
+      .returning();
+    return play;
+  }
+}
+
+export const storage = new DatabaseStorage();

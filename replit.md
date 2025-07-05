@@ -24,7 +24,7 @@ This is a comprehensive financial portfolio analytics platform built with a mode
 - **ORM**: Drizzle ORM for type-safe database interactions
 - **Database**: PostgreSQL with Neon serverless adapter
 - **Schema Management**: Drizzle Kit for migrations and schema management
-- **Development Storage**: In-memory storage implementation for development/testing
+- **Production Storage**: DatabaseStorage implementation using PostgreSQL for persistent data storage
 
 ## Key Components
 

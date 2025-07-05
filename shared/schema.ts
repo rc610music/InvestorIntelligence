@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, decimal, timestamp } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -120,3 +121,15 @@ export type MarketMover = typeof marketMovers.$inferSelect;
 
 export type InsertOptionsPlay = z.infer<typeof insertOptionsPlaySchema>;
 export type OptionsPlay = typeof optionsPlays.$inferSelect;
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  portfolioPositions: many(portfolioPositions),
+}));
+
+export const portfolioPositionsRelations = relations(portfolioPositions, ({ one }) => ({
+  user: one(users, {
+    fields: [portfolioPositions.userId],
+    references: [users.id],
+  }),
+}));
