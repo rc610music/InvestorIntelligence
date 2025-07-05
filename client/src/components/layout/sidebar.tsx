@@ -9,7 +9,12 @@ import {
   Layers,
   Settings,
   BarChart3,
-  BookOpen
+  BookOpen,
+  Brain,
+  Activity,
+  MessageCircle,
+  Calculator,
+  Globe
 } from "lucide-react";
 
 const navigation = [
@@ -20,6 +25,14 @@ const navigation = [
   { name: "Screener", href: "/screener", icon: Search },
   { name: "Options", href: "/options", icon: Layers },
   { name: "Education", href: "/education", icon: BookOpen },
+];
+
+const advancedNavigation = [
+  { name: "Market Intelligence", href: "/market-intelligence", icon: Globe },
+  { name: "AI Insights", href: "/ai-insights", icon: Brain },
+  { name: "Options Flow", href: "/options-flow", icon: Activity },
+  { name: "Social Sentiment", href: "/social-sentiment", icon: MessageCircle },
+  { name: "Value Predictor", href: "/value-predictor", icon: Calculator },
 ];
 
 export default function Sidebar() {
@@ -42,26 +55,57 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {navigation.map((item) => {
-            const isActive = location === item.href;
-            const Icon = item.icon;
-            
-            return (
-              <li key={item.name}>
-                <Link href={item.href} className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
-                  isActive 
-                    ? "bg-primary/10 text-primary" 
-                    : "text-gray-700 hover:bg-gray-100"
-                )}>
-                  <Icon className="w-5 h-5" />
-                  <span>{item.name}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="space-y-6">
+          {/* Core Features */}
+          <div>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Core Features</h3>
+            <ul className="space-y-2">
+              {navigation.map((item) => {
+                const isActive = location === item.href;
+                const Icon = item.icon;
+                
+                return (
+                  <li key={item.name}>
+                    <Link href={item.href} className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
+                      isActive 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-gray-700 hover:bg-gray-100"
+                    )}>
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Advanced Analytics */}
+          <div>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Advanced Analytics</h3>
+            <ul className="space-y-2">
+              {advancedNavigation.map((item) => {
+                const isActive = location === item.href;
+                const Icon = item.icon;
+                
+                return (
+                  <li key={item.name}>
+                    <Link href={item.href} className={cn(
+                      "flex items-center space-x-3 px-3 py-2 rounded-lg font-medium transition-colors",
+                      isActive 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-gray-700 hover:bg-gray-100"
+                    )}>
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
       </nav>
 
       {/* User Profile */}

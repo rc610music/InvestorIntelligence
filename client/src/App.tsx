@@ -12,6 +12,11 @@ import Calendar from "@/pages/calendar";
 import Screener from "@/pages/screener";
 import Options from "@/pages/options";
 import Education from "@/pages/education";
+import AIInsights from "@/pages/ai-insights";
+import OptionsFlow from "@/pages/options-flow";
+import SocialSentiment from "@/pages/social-sentiment";
+import ValuePredictor from "@/pages/value-predictor";
+import MarketIntelligence from "@/pages/market-intelligence";
 import Sidebar from "@/components/layout/sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNav from "@/components/layout/mobile-nav";
@@ -26,6 +31,11 @@ function Router() {
       <Route path="/screener" component={Screener} />
       <Route path="/options" component={Options} />
       <Route path="/education" component={Education} />
+      <Route path="/ai-insights" component={AIInsights} />
+      <Route path="/options-flow" component={OptionsFlow} />
+      <Route path="/social-sentiment" component={SocialSentiment} />
+      <Route path="/value-predictor" component={ValuePredictor} />
+      <Route path="/market-intelligence" component={MarketIntelligence} />
       <Route component={NotFound} />
     </Switch>
   );
