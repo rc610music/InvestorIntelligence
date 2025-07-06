@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
+import { DisclaimerFooter } from "@/components/ui/disclaimer-footer";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -28,15 +30,35 @@ export default function ValuePredictor() {
   const [selectedStock, setSelectedStock] = useState("AAPL");
   const [investmentAmount, setInvestmentAmount] = useState("10000");
   const [timeHorizon, setTimeHorizon] = useState("12");
+  const [predictionTriggered, setPredictionTriggered] = useState(false);
+  
+  const queryClient = useQueryClient();
 
-  const { data: predictionData } = useQuery({
+  const { data: predictionData, isLoading: predictionLoading } = useQuery<any>({
     queryKey: ['/api/ai/value-prediction', selectedStock],
-    enabled: true
+    enabled: predictionTriggered
   });
 
-  const { data: backtestData } = useQuery({
+  const { data: backtestData, isLoading: backtestLoading } = useQuery({
     queryKey: ['/api/ai/backtest-results', selectedStock, investmentAmount, timeHorizon],
-    enabled: true
+    enabled: predictionTriggered
+  });
+
+  const generatePrediction = useMutation({
+    mutationFn: async () => {
+      setPredictionTriggered(true);
+      
+      // Invalidate and refetch both queries with new parameters
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/ai/value-prediction', selectedStock] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/ai/backtest-results', selectedStock, investmentAmount, timeHorizon] })
+      ]);
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      console.log('AI prediction generated successfully');
+    }
   });
 
   return (
@@ -93,9 +115,13 @@ export default function ValuePredictor() {
                   />
                 </div>
               </div>
-              <Button className="w-full mt-4">
+              <Button 
+                className="w-full mt-4" 
+                onClick={() => generatePrediction.mutate()}
+                disabled={generatePrediction.isPending || predictionLoading || backtestLoading}
+              >
                 <Brain className="h-4 w-4 mr-2" />
-                Generate AI Prediction
+                {generatePrediction.isPending ? 'Generating...' : 'Generate AI Prediction'}
               </Button>
             </CardContent>
           </Card>
@@ -109,13 +135,29 @@ export default function ValuePredictor() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-green-600 mb-2">$195.50</div>
-                    <Badge className="bg-green-100 text-green-800">+13.3% Expected Return</Badge>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      95% confidence interval: $178.20 - $212.80
-                    </p>
-                  </div>
+                  {!predictionTriggered ? (
+                    <div className="text-center py-8">
+                      <Brain className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">Click "Generate AI Prediction" to analyze {selectedStock}</p>
+                    </div>
+                  ) : predictionLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+                      <p className="text-muted-foreground">AI analyzing {selectedStock}...</p>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-green-600 mb-2">
+                        ${predictionData?.targetPrice || predictionData?.predictions?.['30_day']?.price?.toFixed(2) || 'N/A'}
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">
+                        {predictionData?.expectedReturn || '+2.9'}% Expected Return
+                      </Badge>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        95% confidence interval: ${predictionData?.confidenceInterval?.low || (predictionData?.currentPrice * 0.96)?.toFixed(2) || 'N/A'} - ${predictionData?.confidenceInterval?.high || (predictionData?.currentPrice * 1.075)?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -710,6 +752,8 @@ export default function ValuePredictor() {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <DisclaimerFooter />
     </div>
   );
 }

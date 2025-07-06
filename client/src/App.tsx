@@ -17,6 +17,7 @@ import OptionsFlow from "@/pages/options-flow";
 import SocialSentiment from "@/pages/social-sentiment";
 import ValuePredictor from "@/pages/value-predictor";
 import MarketIntelligence from "@/pages/market-intelligence";
+import Disclaimer from "@/pages/disclaimer";
 import Sidebar from "@/components/layout/sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNav from "@/components/layout/mobile-nav";
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/social-sentiment" component={SocialSentiment} />
       <Route path="/value-predictor" component={ValuePredictor} />
       <Route path="/market-intelligence" component={MarketIntelligence} />
+      <Route path="/disclaimer" component={Disclaimer} />
       <Route component={NotFound} />
     </Switch>
   );
