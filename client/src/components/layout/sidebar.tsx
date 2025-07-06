@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Scale
 } from "lucide-react";
+import appIcon from "@assets/20250429_1104_Graphene Stock Tracker Icon_remix_01jt116mh7ek9sdtcr41gyfxeb_1751837863498.png";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: PieChart },
@@ -46,11 +47,15 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <BarChart3 className="h-6 w-6 text-white" />
+          <div className="w-12 h-12 rounded-xl overflow-hidden">
+            <img 
+              src={appIcon} 
+              alt="StockSense" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
-            <h1 className="text-xl font-bold">InvestPro</h1>
+            <h1 className="text-xl font-bold">StockSense</h1>
             <p className="text-sm text-neutral">Portfolio Analytics</p>
           </div>
         </div>
