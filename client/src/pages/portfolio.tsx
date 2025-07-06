@@ -187,7 +187,7 @@ export default function Portfolio() {
       </div>
 
       {/* Portfolio Stats */}
-      <PortfolioStats userId={1} />
+      <PortfolioStats />
 
       {/* Positions List */}
       <Card>

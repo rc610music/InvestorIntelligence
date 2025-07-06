@@ -1,8 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertPortfolioPositionSchema, insertMarketNewsSchema, insertEconomicEventSchema, insertMarketMoverSchema, insertOptionsPlaySchema } from "@shared/schema";
 import { z } from "zod";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 // Financial API service
 class FinancialAPIService {
@@ -124,11 +126,25 @@ class FinancialAPIService {
 const financialAPI = new FinancialAPIService();
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   
   // Portfolio routes
-  app.get("/api/portfolio/positions/:userId", async (req, res) => {
+  app.get("/api/portfolio/positions/:userId", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.user.claims.sub; // Use authenticated user ID
       const positions = await storage.getPortfolioPositions(userId);
       res.json(positions);
     } catch (error) {
@@ -200,9 +216,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Portfolio summary
-  app.get("/api/portfolio/summary/:userId", async (req, res) => {
+  app.get("/api/portfolio/summary/:userId", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = parseInt(req.params.userId);
+      const userId = req.user.claims.sub; // Use authenticated user ID
       const positions = await storage.getPortfolioPositions(userId);
       
       const totalValue = positions.reduce((sum, pos) => sum + parseFloat(pos.marketValue), 0);
@@ -1143,59 +1159,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add sample portfolio positions for demo user
       const samplePositions = [
         {
-          userId: 1,
+          userId: "demo-user-123",
           symbol: "AAPL",
           name: "Apple Inc.",
           shares: "50",
           avgPrice: "150.25",
-          currentPrice: "172.50",
-          marketValue: "8625.00", // 50 * 172.50
-          unrealizedGainLoss: "1112.50", // 8625 - (50 * 150.25)
-          unrealizedGainLossPercent: "14.81" // ((172.50 - 150.25) / 150.25) * 100
+          currentPrice: "172.50"
         },
         {
-          userId: 1,
+          userId: "demo-user-123",
           symbol: "MSFT",
           name: "Microsoft Corporation",
           shares: "25",
           avgPrice: "380.75",
-          currentPrice: "415.20",
-          marketValue: "10380.00", // 25 * 415.20
-          unrealizedGainLoss: "861.25", // 10380 - (25 * 380.75)
-          unrealizedGainLossPercent: "9.04" // ((415.20 - 380.75) / 380.75) * 100
+          currentPrice: "415.20"
         },
         {
-          userId: 1,
+          userId: "demo-user-123",
           symbol: "NVDA",
           name: "NVIDIA Corporation",
           shares: "15",
           avgPrice: "420.80",
-          currentPrice: "875.30",
-          marketValue: "13129.50", // 15 * 875.30
-          unrealizedGainLoss: "6817.50", // 13129.50 - (15 * 420.80)
-          unrealizedGainLossPercent: "108.03" // ((875.30 - 420.80) / 420.80) * 100
+          currentPrice: "875.30"
         },
         {
-          userId: 1,
+          userId: "demo-user-123",
           symbol: "TSLA",
           name: "Tesla Inc.",
           shares: "10",
           avgPrice: "210.40",
-          currentPrice: "248.50",
-          marketValue: "2485.00", // 10 * 248.50
-          unrealizedGainLoss: "381.00", // 2485 - (10 * 210.40)
-          unrealizedGainLossPercent: "18.11" // ((248.50 - 210.40) / 210.40) * 100
+          currentPrice: "248.50"
         },
         {
-          userId: 1,
+          userId: "demo-user-123",
           symbol: "GOOGL",
           name: "Alphabet Inc.",
           shares: "20",
           avgPrice: "135.60",
-          currentPrice: "162.85",
-          marketValue: "3257.00", // 20 * 162.85
-          unrealizedGainLoss: "545.00", // 3257 - (20 * 135.60)
-          unrealizedGainLossPercent: "20.10" // ((162.85 - 135.60) / 135.60) * 100
+          currentPrice: "162.85"
         }
       ];
 

@@ -36,13 +36,13 @@ export default function Dashboard() {
       </div>
 
       {/* Portfolio Stats */}
-      <PortfolioStats userId={1} />
+      <PortfolioStats />
 
       {/* Main Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Portfolio Positions */}
         <div className="lg:col-span-2">
-          <PositionList userId={1} />
+          <PositionList />
         </div>
 
         {/* Sidebar Content */}

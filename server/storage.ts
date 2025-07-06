@@ -1,23 +1,42 @@
 import { 
   users, portfolioPositions, marketNews, economicEvents, marketMovers, optionsPlays,
-  type User, type InsertUser,
+  brokerageAccounts, watchlists, watchlistItems,
+  type User, type UpsertUser,
   type PortfolioPosition, type InsertPortfolioPosition,
   type MarketNews, type InsertMarketNews,
   type EconomicEvent, type InsertEconomicEvent,
   type MarketMover, type InsertMarketMover,
-  type OptionsPlay, type InsertOptionsPlay
+  type OptionsPlay, type InsertOptionsPlay,
+  type BrokerageAccount, type InsertBrokerageAccount,
+  type Watchlist, type InsertWatchlist,
+  type WatchlistItem, type InsertWatchlistItem
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
-  // Users
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Users (Replit Auth compatible)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+
+  // Brokerage Accounts
+  getBrokerageAccounts(userId: string): Promise<BrokerageAccount[]>;
+  createBrokerageAccount(account: InsertBrokerageAccount): Promise<BrokerageAccount>;
+  updateBrokerageAccount(id: number, updates: Partial<BrokerageAccount>): Promise<BrokerageAccount | undefined>;
+  deleteBrokerageAccount(id: number): Promise<boolean>;
+
+  // Watchlists
+  getWatchlists(userId: string): Promise<Watchlist[]>;
+  createWatchlist(watchlist: InsertWatchlist): Promise<Watchlist>;
+  deleteWatchlist(id: number): Promise<boolean>;
+  
+  // Watchlist Items
+  getWatchlistItems(watchlistId: number): Promise<WatchlistItem[]>;
+  addWatchlistItem(item: InsertWatchlistItem): Promise<WatchlistItem>;
+  removeWatchlistItem(watchlistId: number, symbol: string): Promise<boolean>;
 
   // Portfolio Positions
-  getPortfolioPositions(userId: number): Promise<PortfolioPosition[]>;
+  getPortfolioPositions(userId: string): Promise<PortfolioPosition[]>;
   getPortfolioPosition(id: number): Promise<PortfolioPosition | undefined>;
   createPortfolioPosition(position: InsertPortfolioPosition): Promise<PortfolioPosition>;
   updatePortfolioPosition(id: number, updates: Partial<PortfolioPosition>): Promise<PortfolioPosition | undefined>;
@@ -41,261 +60,111 @@ export interface IStorage {
   createOptionsPlay(play: InsertOptionsPlay): Promise<OptionsPlay>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private portfolioPositions: Map<number, PortfolioPosition>;
-  private marketNews: Map<number, MarketNews>;
-  private economicEvents: Map<number, EconomicEvent>;
-  private marketMovers: Map<number, MarketMover>;
-  private optionsPlays: Map<number, OptionsPlay>;
-  
-  private currentUserIdCounter: number;
-  private currentPositionIdCounter: number;
-  private currentNewsIdCounter: number;
-  private currentEventIdCounter: number;
-  private currentMoverIdCounter: number;
-  private currentOptionsIdCounter: number;
-
-  constructor() {
-    this.users = new Map();
-    this.portfolioPositions = new Map();
-    this.marketNews = new Map();
-    this.economicEvents = new Map();
-    this.marketMovers = new Map();
-    this.optionsPlays = new Map();
-    
-    this.currentUserIdCounter = 1;
-    this.currentPositionIdCounter = 1;
-    this.currentNewsIdCounter = 1;
-    this.currentEventIdCounter = 1;
-    this.currentMoverIdCounter = 1;
-    this.currentOptionsIdCounter = 1;
-  }
-
-  // Users
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserIdCounter++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+export class DatabaseStorage implements IStorage {
+  // Users (Replit Auth compatible)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  // Portfolio Positions
-  async getPortfolioPositions(userId: number): Promise<PortfolioPosition[]> {
-    return Array.from(this.portfolioPositions.values()).filter(position => position.userId === userId);
-  }
-
-  async getPortfolioPosition(id: number): Promise<PortfolioPosition | undefined> {
-    return this.portfolioPositions.get(id);
-  }
-
-  async createPortfolioPosition(insertPosition: InsertPortfolioPosition): Promise<PortfolioPosition> {
-    const id = this.currentPositionIdCounter++;
-    const marketValue = parseFloat(insertPosition.shares) * parseFloat(insertPosition.currentPrice);
-    const costBasis = parseFloat(insertPosition.shares) * parseFloat(insertPosition.avgPrice);
-    const unrealizedGainLoss = marketValue - costBasis;
-    const unrealizedGainLossPercent = ((unrealizedGainLoss / costBasis) * 100);
-    
-    const position: PortfolioPosition = {
-      ...insertPosition,
-      id,
-      marketValue: marketValue.toFixed(2),
-      unrealizedGainLoss: unrealizedGainLoss.toFixed(2),
-      unrealizedGainLossPercent: unrealizedGainLossPercent.toFixed(2),
-      createdAt: new Date(),
-    };
-    
-    this.portfolioPositions.set(id, position);
-    return position;
-  }
-
-  async updatePortfolioPosition(id: number, updates: Partial<PortfolioPosition>): Promise<PortfolioPosition | undefined> {
-    const position = this.portfolioPositions.get(id);
-    if (!position) return undefined;
-
-    const updatedPosition = { ...position, ...updates };
-    
-    // Recalculate derived fields if relevant fields changed
-    if (updates.shares || updates.currentPrice || updates.avgPrice) {
-      const marketValue = parseFloat(updatedPosition.shares) * parseFloat(updatedPosition.currentPrice);
-      const costBasis = parseFloat(updatedPosition.shares) * parseFloat(updatedPosition.avgPrice);
-      const unrealizedGainLoss = marketValue - costBasis;
-      const unrealizedGainLossPercent = ((unrealizedGainLoss / costBasis) * 100);
-      
-      updatedPosition.marketValue = marketValue.toFixed(2);
-      updatedPosition.unrealizedGainLoss = unrealizedGainLoss.toFixed(2);
-      updatedPosition.unrealizedGainLossPercent = unrealizedGainLossPercent.toFixed(2);
-    }
-
-    this.portfolioPositions.set(id, updatedPosition);
-    return updatedPosition;
-  }
-
-  async deletePortfolioPosition(id: number): Promise<boolean> {
-    return this.portfolioPositions.delete(id);
-  }
-
-  // Market News
-  async getMarketNews(limit = 10): Promise<MarketNews[]> {
-    const allNews = Array.from(this.marketNews.values());
-    return allNews
-      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-      .slice(0, limit);
-  }
-
-  async createMarketNews(insertNews: InsertMarketNews): Promise<MarketNews> {
-    const id = this.currentNewsIdCounter++;
-    const news: MarketNews = { 
-      id,
-      title: insertNews.title,
-      summary: insertNews.summary,
-      url: insertNews.url,
-      source: insertNews.source,
-      publishedAt: insertNews.publishedAt,
-      imageUrl: insertNews.imageUrl ?? null,
-      sentiment: insertNews.sentiment ?? null
-    };
-    this.marketNews.set(id, news);
-    return news;
-  }
-
-  // Economic Events
-  async getEconomicEvents(limit = 10): Promise<EconomicEvent[]> {
-    const allEvents = Array.from(this.economicEvents.values());
-    return allEvents
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(0, limit);
-  }
-
-  async createEconomicEvent(insertEvent: InsertEconomicEvent): Promise<EconomicEvent> {
-    const id = this.currentEventIdCounter++;
-    const event: EconomicEvent = { 
-      id,
-      title: insertEvent.title,
-      date: insertEvent.date,
-      time: insertEvent.time,
-      impact: insertEvent.impact,
-      currency: insertEvent.currency,
-      previous: insertEvent.previous ?? null,
-      forecast: insertEvent.forecast ?? null,
-      actual: insertEvent.actual ?? null
-    };
-    this.economicEvents.set(id, event);
-    return event;
-  }
-
-  // Market Movers
-  async getMarketMovers(limit = 10): Promise<MarketMover[]> {
-    const allMovers = Array.from(this.marketMovers.values());
-    return allMovers
-      .sort((a, b) => Math.abs(parseFloat(b.changePercent)) - Math.abs(parseFloat(a.changePercent)))
-      .slice(0, limit);
-  }
-
-  async createMarketMover(insertMover: InsertMarketMover): Promise<MarketMover> {
-    const id = this.currentMoverIdCounter++;
-    const mover: MarketMover = { 
-      id,
-      symbol: insertMover.symbol,
-      name: insertMover.name,
-      currentPrice: insertMover.currentPrice,
-      changePercent: insertMover.changePercent,
-      changeAmount: insertMover.changeAmount,
-      volume: insertMover.volume,
-      marketCap: insertMover.marketCap ?? null,
-      lastUpdated: new Date()
-    };
-    this.marketMovers.set(id, mover);
-    return mover;
-  }
-
-  async updateMarketMovers(movers: InsertMarketMover[]): Promise<MarketMover[]> {
-    // Clear existing movers and add new ones
-    this.marketMovers.clear();
-    this.currentMoverIdCounter = 1;
-
-    const updatedMovers: MarketMover[] = [];
-    for (const mover of movers) {
-      const created = await this.createMarketMover(mover);
-      updatedMovers.push(created);
-    }
-    return updatedMovers;
-  }
-
-  // Options Plays
-  async getOptionsPlays(limit = 10): Promise<OptionsPlay[]> {
-    const allPlays = Array.from(this.optionsPlays.values());
-    return allPlays
-      .sort((a, b) => {
-        const aReturn = parseFloat(a.potentialReturn || '0');
-        const bReturn = parseFloat(b.potentialReturn || '0');
-        return bReturn - aReturn;
-      })
-      .slice(0, limit);
-  }
-
-  async createOptionsPlay(insertPlay: InsertOptionsPlay): Promise<OptionsPlay> {
-    const id = this.currentOptionsIdCounter++;
-    const play: OptionsPlay = { 
-      id,
-      symbol: insertPlay.symbol,
-      strike: insertPlay.strike,
-      expiration: insertPlay.expiration,
-      type: insertPlay.type,
-      premium: insertPlay.premium,
-      impliedVolatility: insertPlay.impliedVolatility,
-      recommendation: insertPlay.recommendation,
-      delta: insertPlay.delta ?? null,
-      potentialReturn: insertPlay.potentialReturn ?? null,
-      analysis: insertPlay.analysis ?? null
-    };
-    this.optionsPlays.set(id, play);
-    return play;
-  }
-}
-
-export class DatabaseStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user || undefined;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async upsertUser(userData: UpsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
       .returning();
     return user;
   }
 
-  async getPortfolioPositions(userId: number): Promise<PortfolioPosition[]> {
+  // Brokerage Accounts
+  async getBrokerageAccounts(userId: string): Promise<BrokerageAccount[]> {
+    return await db.select().from(brokerageAccounts).where(eq(brokerageAccounts.userId, userId));
+  }
+
+  async createBrokerageAccount(account: InsertBrokerageAccount): Promise<BrokerageAccount> {
+    const [brokerageAccount] = await db.insert(brokerageAccounts).values(account).returning();
+    return brokerageAccount;
+  }
+
+  async updateBrokerageAccount(id: number, updates: Partial<BrokerageAccount>): Promise<BrokerageAccount | undefined> {
+    const [brokerageAccount] = await db
+      .update(brokerageAccounts)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(brokerageAccounts.id, id))
+      .returning();
+    return brokerageAccount;
+  }
+
+  async deleteBrokerageAccount(id: number): Promise<boolean> {
+    const result = await db.delete(brokerageAccounts).where(eq(brokerageAccounts.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Watchlists
+  async getWatchlists(userId: string): Promise<Watchlist[]> {
+    return await db.select().from(watchlists).where(eq(watchlists.userId, userId));
+  }
+
+  async createWatchlist(watchlist: InsertWatchlist): Promise<Watchlist> {
+    const [newWatchlist] = await db.insert(watchlists).values(watchlist).returning();
+    return newWatchlist;
+  }
+
+  async deleteWatchlist(id: number): Promise<boolean> {
+    const result = await db.delete(watchlists).where(eq(watchlists.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Watchlist Items
+  async getWatchlistItems(watchlistId: number): Promise<WatchlistItem[]> {
+    return await db.select().from(watchlistItems).where(eq(watchlistItems.watchlistId, watchlistId));
+  }
+
+  async addWatchlistItem(item: InsertWatchlistItem): Promise<WatchlistItem> {
+    const [watchlistItem] = await db.insert(watchlistItems).values(item).returning();
+    return watchlistItem;
+  }
+
+  async removeWatchlistItem(watchlistId: number, symbol: string): Promise<boolean> {
+    const result = await db.delete(watchlistItems)
+      .where(eq(watchlistItems.watchlistId, watchlistId));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Portfolio Positions
+  async getPortfolioPositions(userId: string): Promise<PortfolioPosition[]> {
     return await db.select().from(portfolioPositions).where(eq(portfolioPositions.userId, userId));
   }
 
   async getPortfolioPosition(id: number): Promise<PortfolioPosition | undefined> {
     const [position] = await db.select().from(portfolioPositions).where(eq(portfolioPositions.id, id));
-    return position || undefined;
+    return position;
   }
 
-  async createPortfolioPosition(insertPosition: InsertPortfolioPosition): Promise<PortfolioPosition> {
-    const [position] = await db
-      .insert(portfolioPositions)
-      .values(insertPosition)
-      .returning();
-    return position;
+  async createPortfolioPosition(position: InsertPortfolioPosition): Promise<PortfolioPosition> {
+    // Calculate market value and gains/losses
+    const shares = parseFloat(position.shares);
+    const avgPrice = parseFloat(position.avgPrice);
+    const currentPrice = parseFloat(position.currentPrice);
+    const marketValue = shares * currentPrice;
+    const unrealizedGainLoss = marketValue - (shares * avgPrice);
+    const unrealizedGainLossPercent = ((unrealizedGainLoss / (shares * avgPrice)) * 100);
+
+    const [portfolioPosition] = await db.insert(portfolioPositions).values({
+      ...position,
+      marketValue: marketValue.toFixed(2),
+      unrealizedGainLoss: unrealizedGainLoss.toFixed(2),
+      unrealizedGainLossPercent: unrealizedGainLossPercent.toFixed(2),
+      isManualEntry: position.isManualEntry ?? true,
+      lastSyncedAt: null
+    }).returning();
+    return portfolioPosition;
   }
 
   async updatePortfolioPosition(id: number, updates: Partial<PortfolioPosition>): Promise<PortfolioPosition | undefined> {
@@ -304,71 +173,61 @@ export class DatabaseStorage implements IStorage {
       .set(updates)
       .where(eq(portfolioPositions.id, id))
       .returning();
-    return position || undefined;
+    return position;
   }
 
   async deletePortfolioPosition(id: number): Promise<boolean> {
     const result = await db.delete(portfolioPositions).where(eq(portfolioPositions.id, id));
-    return (result.rowCount || 0) > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
+  // Market News
   async getMarketNews(limit = 10): Promise<MarketNews[]> {
     return await db.select().from(marketNews).orderBy(desc(marketNews.publishedAt)).limit(limit);
   }
 
-  async createMarketNews(insertNews: InsertMarketNews): Promise<MarketNews> {
-    const [news] = await db
-      .insert(marketNews)
-      .values(insertNews)
-      .returning();
-    return news;
+  async createMarketNews(news: InsertMarketNews): Promise<MarketNews> {
+    const [marketNewsItem] = await db.insert(marketNews).values(news).returning();
+    return marketNewsItem;
   }
 
+  // Economic Events
   async getEconomicEvents(limit = 10): Promise<EconomicEvent[]> {
     return await db.select().from(economicEvents).orderBy(desc(economicEvents.date)).limit(limit);
   }
 
-  async createEconomicEvent(insertEvent: InsertEconomicEvent): Promise<EconomicEvent> {
-    const [event] = await db
-      .insert(economicEvents)
-      .values(insertEvent)
-      .returning();
-    return event;
+  async createEconomicEvent(event: InsertEconomicEvent): Promise<EconomicEvent> {
+    const [economicEvent] = await db.insert(economicEvents).values(event).returning();
+    return economicEvent;
   }
 
+  // Market Movers
   async getMarketMovers(limit = 10): Promise<MarketMover[]> {
-    return await db.select().from(marketMovers).orderBy(desc(marketMovers.id)).limit(limit);
+    return await db.select().from(marketMovers).orderBy(desc(marketMovers.lastUpdated)).limit(limit);
   }
 
-  async createMarketMover(insertMover: InsertMarketMover): Promise<MarketMover> {
-    const [mover] = await db
-      .insert(marketMovers)
-      .values(insertMover)
-      .returning();
-    return mover;
+  async createMarketMover(mover: InsertMarketMover): Promise<MarketMover> {
+    const [marketMover] = await db.insert(marketMovers).values(mover).returning();
+    return marketMover;
   }
 
   async updateMarketMovers(movers: InsertMarketMover[]): Promise<MarketMover[]> {
-    // Clear existing movers and insert new ones
+    // Clear existing movers
     await db.delete(marketMovers);
-    if (movers.length === 0) return [];
     
-    return await db
-      .insert(marketMovers)
-      .values(movers)
-      .returning();
+    // Insert new movers
+    const result = await db.insert(marketMovers).values(movers).returning();
+    return result;
   }
 
+  // Options Plays
   async getOptionsPlays(limit = 10): Promise<OptionsPlay[]> {
-    return await db.select().from(optionsPlays).orderBy(desc(optionsPlays.id)).limit(limit);
+    return await db.select().from(optionsPlays).orderBy(desc(optionsPlays.expiration)).limit(limit);
   }
 
-  async createOptionsPlay(insertPlay: InsertOptionsPlay): Promise<OptionsPlay> {
-    const [play] = await db
-      .insert(optionsPlays)
-      .values(insertPlay)
-      .returning();
-    return play;
+  async createOptionsPlay(play: InsertOptionsPlay): Promise<OptionsPlay> {
+    const [optionsPlay] = await db.insert(optionsPlays).values(play).returning();
+    return optionsPlay;
   }
 }
 
