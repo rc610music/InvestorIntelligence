@@ -20,21 +20,126 @@ import {
   Shield
 } from "lucide-react";
 
+// AI Analytics API Types
+interface SentimentData {
+  fearGreedIndex: {
+    value: number;
+    status: string;
+    lastUpdated: string;
+    weeklyChange: number;
+  };
+  marketSentiment: {
+    overall: string;
+    confidence: number;
+    socialMediaScore: number;
+    institutionalFlow: string;
+    retailSentiment: number;
+  };
+  sectorSentiment: Array<{
+    sector: string;
+    sentiment: string;
+    score: number;
+    change: number;
+  }>;
+}
+
+interface PortfolioOptimization {
+  riskAssessment: {
+    portfolioRisk: string;
+    sharpeRatio: number;
+    maxDrawdown: number;
+    volatility: number;
+    beta: number;
+  };
+  rebalancingRecommendations: Array<{
+    action: string;
+    asset: string;
+    currentWeight: number;
+    targetWeight: number;
+    reason: string;
+  }>;
+  taxOptimization: {
+    potentialSavings: number;
+    harvestingOpportunities: number;
+    recommendations: string[];
+  };
+  performancePrediction: {
+    expectedReturn: number;
+    confidenceInterval: string;
+    timeHorizon: string;
+    probability: number;
+  };
+}
+
+interface PredictiveAnalytics {
+  marketPredictions: {
+    sp500: {
+      current: number;
+      predicted30Day: number;
+      confidence: number;
+      range: { low: number; high: number };
+      factors: string[];
+    };
+    nasdaq: {
+      current: number;
+      predicted30Day: number;
+      confidence: number;
+      range: { low: number; high: number };
+      factors: string[];
+    };
+  };
+  sectorRotation: Array<{
+    sector: string;
+    signal: string;
+    strength: number;
+    timeframe: string;
+  }>;
+  riskFactors: Array<{
+    factor: string;
+    probability: number;
+    impact: string;
+  }>;
+  monteCarloResults: {
+    simulations: number;
+    averageReturn: number;
+    successRate: number;
+    worstCase: number;
+    bestCase: number;
+  };
+}
+
 export default function AIInsights() {
-  const { data: sentimentData } = useQuery({
+  const { data: sentimentData, isLoading: sentimentLoading } = useQuery<SentimentData>({
     queryKey: ['/api/ai/sentiment-analysis'],
     enabled: true
   });
 
-  const { data: portfolioAI } = useQuery({
+  const { data: portfolioAI, isLoading: portfolioLoading } = useQuery<PortfolioOptimization>({
     queryKey: ['/api/ai/portfolio-optimization'],
     enabled: true
   });
 
-  const { data: predictiveAnalytics } = useQuery({
+  const { data: predictiveAnalytics, isLoading: predictiveLoading } = useQuery<PredictiveAnalytics>({
     queryKey: ['/api/ai/predictive-analytics'],
     enabled: true
   });
+
+  if (sentimentLoading || portfolioLoading || predictiveLoading) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center space-x-2 mb-6">
+          <Brain className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">AI Investment Intelligence</h1>
+            <p className="text-muted-foreground">Loading advanced AI-powered insights...</p>
+          </div>
+        </div>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -65,12 +170,22 @@ export default function AIInsights() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-green-600">72</span>
-                    <Badge variant="secondary" className="bg-green-100 text-green-800">Greed</Badge>
+                    <span className="text-2xl font-bold text-green-600">
+                      {sentimentData?.fearGreedIndex?.value ?? 0}
+                    </span>
+                    <Badge 
+                      variant="secondary" 
+                      className={`${(sentimentData?.fearGreedIndex?.status === 'Greed') 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'}`}
+                    >
+                      {sentimentData?.fearGreedIndex?.status ?? 'Loading...'}
+                    </Badge>
                   </div>
-                  <Progress value={72} className="h-2" />
+                  <Progress value={sentimentData?.fearGreedIndex?.value ?? 0} className="h-2" />
                   <p className="text-sm text-muted-foreground">
-                    Market showing strong bullish sentiment. Consider taking profits on overvalued positions.
+                    Market sentiment: {sentimentData?.marketSentiment?.overall ?? 'Loading...'} 
+                    ({sentimentData?.marketSentiment?.confidence ?? 0}% confidence)
                   </p>
                 </div>
               </CardContent>
@@ -86,16 +201,18 @@ export default function AIInsights() {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>NVDA</span>
-                      <span className="text-green-600">+85% Bullish</span>
+                      <span>Social Media Score</span>
+                      <span className="text-green-600">{sentimentData?.marketSentiment?.socialMediaScore ?? 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>TSLA</span>
-                      <span className="text-red-600">-23% Bearish</span>
+                      <span>Retail Sentiment</span>
+                      <span className="text-blue-600">{sentimentData?.marketSentiment?.retailSentiment ?? 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>AAPL</span>
-                      <span className="text-green-600">+67% Bullish</span>
+                      <span>Institutional Flow</span>
+                      <Badge variant="outline" className="text-xs">
+                        {sentimentData?.marketSentiment?.institutionalFlow ?? 'Loading...'}
+                      </Badge>
                     </div>
                   </div>
                 </div>
@@ -125,51 +242,36 @@ export default function AIInsights() {
             </Card>
           </div>
 
-          {/* Sector Rotation Insights */}
+          {/* Sector Sentiment Analysis */}
           <Card>
             <CardHeader>
-              <CardTitle>AI Sector Rotation Analysis</CardTitle>
+              <CardTitle>Real-Time Sector Sentiment</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-green-600">Sectors to Overweight</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">Technology</div>
-                        <div className="text-sm text-muted-foreground">AI Revolution momentum</div>
+              <div className="space-y-4">
+                {sentimentData?.sectorSentiment?.map((sector, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{sector.sector}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Score: {sector.score} ({sector.change > 0 ? '+' : ''}{sector.change}%)
                       </div>
-                      <Badge className="bg-green-100 text-green-800">+15% Target</Badge>
                     </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">Healthcare</div>
-                        <div className="text-sm text-muted-foreground">Aging population trends</div>
-                      </div>
-                      <Badge className="bg-green-100 text-green-800">+8% Target</Badge>
-                    </div>
+                    <Badge 
+                      className={
+                        sector.sentiment === 'Bullish' ? 'bg-green-100 text-green-800' :
+                        sector.sentiment === 'Bearish' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }
+                    >
+                      {sector.sentiment}
+                    </Badge>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-red-600">Sectors to Underweight</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">Real Estate</div>
-                        <div className="text-sm text-muted-foreground">Interest rate headwinds</div>
-                      </div>
-                      <Badge variant="destructive">-12% Target</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">Utilities</div>
-                        <div className="text-sm text-muted-foreground">Growth rate concerns</div>
-                      </div>
-                      <Badge variant="destructive">-5% Target</Badge>
-                    </div>
+                )) ?? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    Loading sector sentiment data...
                   </div>
-                </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -177,46 +279,50 @@ export default function AIInsights() {
 
         <TabsContent value="optimization" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* AI Portfolio Score */}
+            {/* AI Portfolio Risk Assessment */}
             <Card>
               <CardHeader>
-                <CardTitle>AI Portfolio Health Score</CardTitle>
+                <CardTitle>AI Portfolio Risk Assessment</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-green-600 mb-2">87/100</div>
-                    <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+                    <div className="text-4xl font-bold text-green-600 mb-2">
+                      {portfolioAI?.riskAssessment?.sharpeRatio ?? 0}
+                    </div>
+                    <Badge className="bg-green-100 text-green-800">
+                      {portfolioAI?.riskAssessment?.portfolioRisk ?? 'Loading...'}
+                    </Badge>
                   </div>
                   
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Diversification</span>
-                        <span>92/100</span>
+                        <span>Sharpe Ratio</span>
+                        <span>{portfolioAI?.riskAssessment?.sharpeRatio ?? 0}</span>
                       </div>
-                      <Progress value={92} className="h-2" />
+                      <Progress value={(portfolioAI?.riskAssessment?.sharpeRatio ?? 0) * 50} className="h-2" />
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Risk-Adjusted Returns</span>
-                        <span>85/100</span>
+                        <span>Max Drawdown</span>
+                        <span>{portfolioAI?.riskAssessment?.maxDrawdown ?? 0}%</span>
                       </div>
-                      <Progress value={85} className="h-2" />
+                      <Progress value={Math.abs(portfolioAI?.riskAssessment?.maxDrawdown ?? 0) * 5} className="h-2" />
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Cost Efficiency</span>
-                        <span>78/100</span>
+                        <span>Volatility</span>
+                        <span>{portfolioAI?.riskAssessment?.volatility ?? 0}%</span>
                       </div>
-                      <Progress value={78} className="h-2" />
+                      <Progress value={(portfolioAI?.riskAssessment?.volatility ?? 0) * 3} className="h-2" />
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>ESG Alignment</span>
-                        <span>90/100</span>
+                        <span>Beta</span>
+                        <span>{portfolioAI?.riskAssessment?.beta ?? 0}</span>
                       </div>
-                      <Progress value={90} className="h-2" />
+                      <Progress value={(portfolioAI?.riskAssessment?.beta ?? 0) * 80} className="h-2" />
                     </div>
                   </div>
                 </div>
@@ -230,77 +336,99 @@ export default function AIInsights() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border rounded-lg p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="font-medium">Rebalance Opportunity</span>
+                  {portfolioAI?.rebalancingRecommendations?.map((rec, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {rec.action === 'Reduce' ? 
+                            <TrendingDown className="h-4 w-4 text-red-600" /> :
+                            <TrendingUp className="h-4 w-4 text-green-600" />
+                          }
+                          <span className="font-medium">{rec.action} {rec.asset}</span>
+                        </div>
+                        <Badge className="bg-blue-100 text-blue-800">AI Suggested</Badge>
                       </div>
-                      <Badge className="bg-blue-100 text-blue-800">High Impact</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {rec.currentWeight}% → {rec.targetWeight}%: {rec.reason}
+                      </p>
+                      <Button size="sm" className="w-full">Implement Rebalance</Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Reduce NVDA by 3% and increase VTI exposure. Expected +2.1% annual return improvement.
-                    </p>
-                    <Button size="sm" className="w-full">Implement Rebalance</Button>
-                  </div>
+                  )) ?? (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Loading AI recommendations...
+                    </div>
+                  )}
 
-                  <div className="border rounded-lg p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Target className="h-4 w-4 text-purple-600" />
-                        <span className="font-medium">Tax Loss Harvesting</span>
-                      </div>
-                      <Badge className="bg-purple-100 text-purple-800">Tax Savings</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Sell TSLA position at a loss and buy RIVN. Save $1,847 in taxes while maintaining sector exposure.
-                    </p>
-                    <Button size="sm" variant="outline" className="w-full">Review Strategy</Button>
-                  </div>
-
-                  <div className="border rounded-lg p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="font-medium">Dollar-Cost Averaging</span>
-                      </div>
-                      <Badge className="bg-green-100 text-green-800">Auto-Pilot</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Set up $500 monthly DCA into SPY. AI will optimize timing based on market volatility.
-                    </p>
-                    <Button size="sm" variant="outline" className="w-full">Setup Auto-Invest</Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Factor Analysis */}
+          {/* Tax Optimization Insights */}
           <Card>
             <CardHeader>
-              <CardTitle>115+ Factor AI Analysis</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Advanced multi-factor model analyzing your portfolio across institutional-grade metrics
-              </p>
+              <CardTitle>AI Tax Optimization</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600">
+                      ${portfolioAI?.taxOptimization?.potentialSavings ?? 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Potential Tax Savings</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {portfolioAI?.taxOptimization?.harvestingOpportunities ?? 0}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Harvesting Opportunities</div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="font-semibold">AI Recommendations:</h4>
+                  {portfolioAI?.taxOptimization?.recommendations?.map((rec, index) => (
+                    <div key={index} className="text-sm p-3 bg-gray-50 rounded-lg">
+                      {rec}
+                    </div>
+                  )) ?? (
+                    <div className="text-sm text-muted-foreground">Loading tax optimization...</div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Performance Prediction */}
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Performance Prediction</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center space-y-2">
-                  <div className="text-2xl font-bold text-green-600">+2.3%</div>
-                  <div className="text-sm text-muted-foreground">Alpha Generation</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {portfolioAI?.performancePrediction?.expectedReturn ?? 0}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Expected Return</div>
                 </div>
                 <div className="text-center space-y-2">
-                  <div className="text-2xl font-bold text-blue-600">1.2</div>
-                  <div className="text-sm text-muted-foreground">Sharpe Ratio</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {portfolioAI?.performancePrediction?.probability ?? 0}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Confidence</div>
                 </div>
                 <div className="text-center space-y-2">
-                  <div className="text-2xl font-bold text-purple-600">0.85</div>
-                  <div className="text-sm text-muted-foreground">Beta</div>
+                  <div className="text-sm font-medium text-purple-600">
+                    {portfolioAI?.performancePrediction?.confidenceInterval ?? 'Loading...'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Range</div>
                 </div>
                 <div className="text-center space-y-2">
-                  <div className="text-2xl font-bold text-orange-600">12%</div>
-                  <div className="text-sm text-muted-foreground">Max Drawdown</div>
+                  <div className="text-sm font-medium text-orange-600">
+                    {portfolioAI?.performancePrediction?.timeHorizon ?? 'Loading...'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Time Horizon</div>
                 </div>
               </div>
             </CardContent>
