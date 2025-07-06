@@ -14,7 +14,9 @@ import {
   Activity,
   MessageCircle,
   Calculator,
-  Globe
+  Globe,
+  TrendingUp,
+  Scale
 } from "lucide-react";
 
 const navigation = [
@@ -30,6 +32,7 @@ const navigation = [
 const advancedNavigation = [
   { name: "Market Intelligence", href: "/market-intelligence", icon: Globe },
   { name: "AI Insights", href: "/ai-insights", icon: Brain },
+  { name: "Market Trends", href: "/market-trends", icon: TrendingUp },
   { name: "Options Flow", href: "/options-flow", icon: Activity },
   { name: "Social Sentiment", href: "/social-sentiment", icon: MessageCircle },
   { name: "Value Predictor", href: "/value-predictor", icon: Calculator },
