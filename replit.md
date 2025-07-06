@@ -175,6 +175,15 @@ Changelog:
   * Value Predictor with Monte Carlo simulations
   * Market Intelligence Command Center
 - July 05, 2025. Enhanced navigation with Advanced Analytics section
+- July 05, 2025. Comprehensive Education Center upgrade:
+  * 10 detailed educational resources with rich content
+  * Categorized learning paths (Beginner, Intermediate, Advanced)
+  * Expandable resource cards with chapters and key takeaways
+  * Tabbed organization by subject matter
+  * Downloadable guides, ebooks, toolkits, and video content
+  * Complete coverage: Portfolio Management, Options Trading, Technical Analysis,
+    Risk Management, Cryptocurrency, Behavioral Finance, Economics, ESG Investing,
+    Market Research, and Advanced Analytics
 ```
 
 ## User Preferences

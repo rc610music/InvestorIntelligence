@@ -338,46 +338,312 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1,
           title: "Portfolio Management Fundamentals",
           type: "guide",
-          description: "Learn the basics of building and managing a diversified investment portfolio",
+          description: "Master the art of building and managing a diversified investment portfolio with proven strategies used by institutional investors",
           url: "/resources/portfolio-management.pdf",
-          category: "Portfolio",
-          downloadable: true
+          category: "Portfolio Management",
+          downloadable: true,
+          duration: "45 min read",
+          difficulty: "Beginner",
+          topics: ["Asset Allocation", "Diversification", "Rebalancing", "Risk Assessment"],
+          content: {
+            chapters: [
+              "Introduction to Portfolio Theory",
+              "Asset Classes and Allocation",
+              "Diversification Strategies",
+              "Risk vs Return Analysis",
+              "Portfolio Rebalancing",
+              "Tax-Efficient Investing"
+            ],
+            keyPoints: [
+              "Don't put all eggs in one basket - diversify across asset classes",
+              "Rebalance quarterly to maintain target allocations",
+              "Consider tax implications of portfolio changes",
+              "Match risk tolerance with investment timeline"
+            ]
+          }
         },
         {
           id: 2,
-          title: "Options Trading Strategies",
+          title: "Options Trading Complete Guide",
           type: "ebook",
-          description: "Comprehensive guide to options trading strategies for all experience levels",
+          description: "Comprehensive 200-page guide covering everything from basic calls and puts to advanced multi-leg strategies",
           url: "/resources/options-strategies.pdf",
-          category: "Options",
-          downloadable: true
+          category: "Options Trading",
+          downloadable: true,
+          duration: "3 hours read",
+          difficulty: "Intermediate",
+          topics: ["Calls & Puts", "Greeks", "Spreads", "Volatility", "Risk Management"],
+          content: {
+            chapters: [
+              "Options Basics: Calls and Puts",
+              "Understanding the Greeks",
+              "Covered Calls and Cash-Secured Puts",
+              "Vertical Spreads",
+              "Iron Condors and Butterflies",
+              "Volatility Trading",
+              "Risk Management in Options"
+            ],
+            keyPoints: [
+              "Options can generate income or provide portfolio insurance",
+              "Always understand maximum risk before entering trades",
+              "Volatility is often more important than direction",
+              "Time decay works against option buyers"
+            ]
+          }
         },
         {
           id: 3,
           title: "Technical Analysis Masterclass",
           type: "video",
-          description: "Video series covering chart patterns, indicators, and technical analysis techniques",
+          description: "Professional-grade video series covering chart patterns, indicators, and technical analysis techniques used by trading professionals",
           url: "https://example.com/technical-analysis-course",
-          category: "Analysis",
-          downloadable: false
+          category: "Technical Analysis",
+          downloadable: false,
+          duration: "8 hours video",
+          difficulty: "Advanced",
+          topics: ["Chart Patterns", "Indicators", "Support/Resistance", "Volume Analysis"],
+          content: {
+            chapters: [
+              "Chart Types and Timeframes",
+              "Trend Analysis and Trendlines",
+              "Support and Resistance Levels",
+              "Chart Patterns: Reversal and Continuation",
+              "Technical Indicators: Moving Averages, RSI, MACD",
+              "Volume Analysis and Confirmation",
+              "Candlestick Patterns",
+              "Multi-Timeframe Analysis"
+            ],
+            keyPoints: [
+              "Price action tells the story of market sentiment",
+              "Always confirm signals with multiple indicators",
+              "Volume confirms price movements",
+              "Higher timeframes provide better context"
+            ]
+          }
         },
         {
           id: 4,
-          title: "Risk Management Best Practices",
+          title: "Risk Management Essentials",
           type: "guide",
-          description: "Essential risk management techniques for retail investors",
+          description: "Critical risk management techniques that separate successful investors from gamblers - protect your capital first",
           url: "/resources/risk-management.pdf",
           category: "Risk Management",
-          downloadable: true
+          downloadable: true,
+          duration: "30 min read",
+          difficulty: "Beginner",
+          topics: ["Position Sizing", "Stop Losses", "Diversification", "Correlation"],
+          content: {
+            chapters: [
+              "The Psychology of Risk",
+              "Position Sizing Strategies",
+              "Stop Loss Placement",
+              "Diversification vs Concentration",
+              "Correlation and Portfolio Risk",
+              "Black Swan Events"
+            ],
+            keyPoints: [
+              "Never risk more than 1-2% of portfolio on single trade",
+              "Cut losses quickly, let winners run",
+              "Diversification reduces unsystematic risk",
+              "Prepare for unexpected market events"
+            ]
+          }
         },
         {
           id: 5,
           title: "Market Research Toolkit",
           type: "toolkit",
-          description: "Templates and checklists for conducting thorough market research",
+          description: "Professional templates, checklists, and spreadsheets for conducting thorough fundamental and technical market research",
           url: "/resources/market-research-toolkit.zip",
-          category: "Research",
-          downloadable: true
+          category: "Research Methods",
+          downloadable: true,
+          duration: "Tools & Templates",
+          difficulty: "Intermediate",
+          topics: ["Due Diligence", "Financial Analysis", "Sector Analysis", "Screening"],
+          content: {
+            chapters: [
+              "Stock Screening Checklist",
+              "Financial Statement Analysis Template",
+              "Industry Comparison Spreadsheet",
+              "Economic Calendar Integration",
+              "News and Sentiment Tracking",
+              "Portfolio Performance Tracker"
+            ],
+            keyPoints: [
+              "Research systematically to avoid emotional decisions",
+              "Compare companies within same industry",
+              "Track economic indicators that affect your holdings",
+              "Document your investment thesis"
+            ]
+          }
+        },
+        {
+          id: 6,
+          title: "Cryptocurrency Investment Guide",
+          type: "guide",
+          description: "Navigate the digital asset landscape with strategies for evaluating, investing in, and managing cryptocurrency positions",
+          url: "/resources/crypto-investing.pdf",
+          category: "Alternative Investments",
+          downloadable: true,
+          duration: "60 min read",
+          difficulty: "Intermediate",
+          topics: ["Blockchain", "DeFi", "NFTs", "Crypto Trading"],
+          content: {
+            chapters: [
+              "Understanding Blockchain Technology",
+              "Major Cryptocurrencies Overview",
+              "DeFi and Yield Farming",
+              "NFTs and Digital Assets",
+              "Crypto Trading Strategies",
+              "Security and Wallet Management"
+            ],
+            keyPoints: [
+              "Only invest what you can afford to lose",
+              "Understand the technology behind the investment",
+              "Security is paramount in crypto investing",
+              "Regulatory landscape is rapidly evolving"
+            ]
+          }
+        },
+        {
+          id: 7,
+          title: "Behavioral Finance Psychology",
+          type: "ebook",
+          description: "Understand and overcome cognitive biases that sabotage investment decisions - master the mental game of investing",
+          url: "/resources/behavioral-finance.pdf",
+          category: "Psychology",
+          downloadable: true,
+          duration: "90 min read",
+          difficulty: "Advanced",
+          topics: ["Cognitive Biases", "Emotions", "Decision Making", "Market Psychology"],
+          content: {
+            chapters: [
+              "Common Cognitive Biases in Investing",
+              "Emotional Discipline and Control",
+              "Overconfidence and Confirmation Bias",
+              "Fear and Greed Cycles",
+              "Herd Mentality and Contrarian Thinking",
+              "Building Systematic Decision Processes"
+            ],
+            keyPoints: [
+              "Emotions are the enemy of rational investing",
+              "Develop systematic processes to overcome biases",
+              "Question your assumptions regularly",
+              "Keep detailed investment journals"
+            ]
+          }
+        },
+        {
+          id: 8,
+          title: "Economic Indicators Decoded",
+          type: "guide",
+          description: "Master the key economic indicators that move markets - from GDP to employment data, inflation to interest rates",
+          url: "/resources/economic-indicators.pdf",
+          category: "Economics",
+          downloadable: true,
+          duration: "50 min read",
+          difficulty: "Intermediate",
+          topics: ["GDP", "Inflation", "Employment", "Interest Rates"],
+          content: {
+            chapters: [
+              "GDP and Economic Growth",
+              "Inflation Metrics and Impact",
+              "Employment and Labor Data",
+              "Interest Rates and Fed Policy",
+              "Consumer Confidence and Spending",
+              "International Trade and Currency"
+            ],
+            keyPoints: [
+              "Economic data drives market sentiment",
+              "Understand leading vs lagging indicators",
+              "Fed policy changes can shift entire markets",
+              "Global economic interconnectedness affects all markets"
+            ]
+          }
+        },
+        {
+          id: 9,
+          title: "ESG Investing Framework",
+          type: "guide",
+          description: "Integrate Environmental, Social, and Governance factors into your investment process while maintaining strong returns",
+          url: "/resources/esg-investing.pdf",
+          category: "Sustainable Investing",
+          downloadable: true,
+          duration: "40 min read",
+          difficulty: "Intermediate",
+          topics: ["ESG Metrics", "Sustainability", "Impact Investing", "Screening"],
+          content: {
+            chapters: [
+              "ESG Fundamentals and Metrics",
+              "Sustainable Investment Strategies",
+              "Impact Measurement and Reporting",
+              "ESG Integration in Portfolio Construction",
+              "Green Bonds and Social Impact Bonds",
+              "Future of Sustainable Finance"
+            ],
+            keyPoints: [
+              "ESG factors can improve long-term returns",
+              "Sustainable investing is becoming mainstream",
+              "Consider environmental and social impact",
+              "Strong governance often indicates better management"
+            ]
+          }
+        },
+        {
+          id: 10,
+          title: "Advanced Portfolio Analytics",
+          type: "toolkit",
+          description: "Professional-grade Excel models and Python scripts for portfolio optimization, risk analysis, and performance attribution",
+          url: "/resources/portfolio-analytics.zip",
+          category: "Analytics",
+          downloadable: true,
+          duration: "Tools & Models",
+          difficulty: "Advanced",
+          topics: ["Portfolio Optimization", "Risk Models", "Performance Attribution", "Backtesting"],
+          content: {
+            chapters: [
+              "Modern Portfolio Theory Models",
+              "Risk-Adjusted Return Calculations",
+              "Performance Attribution Analysis",
+              "Backtesting Strategies",
+              "Monte Carlo Simulations",
+              "Factor Analysis and Regression"
+            ],
+            keyPoints: [
+              "Quantitative analysis enhances decision making",
+              "Backtest strategies before implementing",
+              "Understand correlation and covariance",
+              "Risk-adjusted returns matter more than absolute returns"
+            ]
+          }
+        },
+        {
+          id: 10,
+          title: "Advanced Portfolio Analytics",
+          type: "toolkit",
+          description: "Professional-grade Excel models and Python scripts for portfolio optimization, risk analysis, and performance attribution",
+          url: "/resources/portfolio-analytics.zip",
+          category: "Analytics",
+          downloadable: true,
+          duration: "Tools & Models",
+          difficulty: "Advanced",
+          topics: ["Portfolio Optimization", "Risk Models", "Performance Attribution", "Backtesting"],
+          content: {
+            chapters: [
+              "Modern Portfolio Theory Models",
+              "Risk-Adjusted Return Calculations",
+              "Performance Attribution Analysis",
+              "Backtesting Strategies",
+              "Monte Carlo Simulations",
+              "Factor Analysis and Regression"
+            ],
+            keyPoints: [
+              "Quantitative analysis enhances decision making",
+              "Backtest strategies before implementing",
+              "Understand correlation and covariance",
+              "Risk-adjusted returns matter more than absolute returns"
+            ]
+          }
         }
       ];
       
