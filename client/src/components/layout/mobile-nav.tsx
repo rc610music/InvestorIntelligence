@@ -10,11 +10,11 @@ import {
 } from "lucide-react";
 
 const navigation = [
-  { name: "Overview", href: "/", icon: PieChart },
-  { name: "Portfolio", href: "/portfolio", icon: Briefcase },
-  { name: "News", href: "/news", icon: Newspaper },
-  { name: "Screen", href: "/screener", icon: Search },
-  { name: "Learn", href: "/education", icon: BookOpen },
+  { name: "Overview", href: "/app", icon: PieChart },
+  { name: "Portfolio", href: "/app/portfolio", icon: Briefcase },
+  { name: "News", href: "/app/news", icon: Newspaper },
+  { name: "Screen", href: "/app/screener", icon: Search },
+  { name: "Learn", href: "/app/education", icon: BookOpen },
 ];
 
 export default function MobileNav() {

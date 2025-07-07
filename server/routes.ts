@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertPortfolioPositionSchema, insertMarketNewsSchema, insertEconomicEventSchema, insertMarketMoverSchema, insertOptionsPlaySchema } from "@shared/schema";
 import { z } from "zod";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 
 // Financial API service
 class FinancialAPIService {
@@ -105,15 +104,29 @@ class FinancialAPIService {
       const data = await response.json();
       
       if (data.feed) {
-        return data.feed.slice(0, 10).map((article: any) => ({
-          title: article.title,
-          summary: article.summary,
-          url: article.url,
-          source: article.source,
-          publishedAt: new Date(article.time_published),
-          imageUrl: article.banner_image,
-          sentiment: article.overall_sentiment_label?.toLowerCase()
-        }));
+        return data.feed.slice(0, 10).map((article: any) => {
+          // Parse timestamp safely
+          let publishedAt;
+          try {
+            publishedAt = new Date(article.time_published);
+            // Validate the date
+            if (isNaN(publishedAt.getTime())) {
+              publishedAt = new Date(); // Fallback to current time
+            }
+          } catch {
+            publishedAt = new Date(); // Fallback to current time
+          }
+          
+          return {
+            title: article.title,
+            summary: article.summary,
+            url: article.url,
+            source: article.source,
+            publishedAt,
+            imageUrl: article.banner_image,
+            sentiment: article.overall_sentiment_label?.toLowerCase()
+          };
+        });
       }
       return [];
     } catch (error) {

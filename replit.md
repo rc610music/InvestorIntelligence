@@ -222,6 +222,14 @@ Changelog:
   * Impact-based color coding and priority indicators
   * Live pulsing indicators for imminent events
   * Enhanced event grouping by date with timeline view
+- July 07, 2025. Separated Landing Page from Main Application:
+  * Created dedicated marketing landing page at root path (/)
+  * Main application now accessible at /app routes for direct beta testing access
+  * Landing page showcases features, pricing, and conversion funnel
+  * Removed authentication barriers from main app for easy beta testing
+  * Authentication remains available for future subscription integration
+  * Clean separation allows domain-specific traffic routing
+  * Beta users can access app directly without signup friction
 ```
 
 ## User Preferences

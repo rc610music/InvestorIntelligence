@@ -22,22 +22,22 @@ import {
 import appIcon from "@assets/20250429_1104_Graphene Stock Tracker Icon_remix_01jt116mh7ek9sdtcr41gyfxeb_1751837863498.png";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: PieChart },
-  { name: "Portfolio", href: "/portfolio", icon: Briefcase },
-  { name: "Market News", href: "/news", icon: Newspaper },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "Screener", href: "/screener", icon: Search },
-  { name: "Options", href: "/options", icon: Layers },
-  { name: "Education", href: "/education", icon: BookOpen },
+  { name: "Dashboard", href: "/app", icon: PieChart },
+  { name: "Portfolio", href: "/app/portfolio", icon: Briefcase },
+  { name: "Market News", href: "/app/news", icon: Newspaper },
+  { name: "Calendar", href: "/app/calendar", icon: Calendar },
+  { name: "Screener", href: "/app/screener", icon: Search },
+  { name: "Options", href: "/app/options", icon: Layers },
+  { name: "Education", href: "/app/education", icon: BookOpen },
 ];
 
 const advancedNavigation = [
-  { name: "Market Intelligence", href: "/market-intelligence", icon: Globe },
-  { name: "AI Insights", href: "/ai-insights", icon: Brain },
-  { name: "Market Trends", href: "/market-trends", icon: TrendingUp },
-  { name: "Options Flow", href: "/options-flow", icon: Activity },
-  { name: "Social Sentiment", href: "/social-sentiment", icon: MessageCircle },
-  { name: "Value Predictor", href: "/value-predictor", icon: Calculator },
+  { name: "Market Intelligence", href: "/app/market-intelligence", icon: Globe },
+  { name: "AI Insights", href: "/app/ai-insights", icon: Brain },
+  { name: "Market Trends", href: "/app/market-trends", icon: TrendingUp },
+  { name: "Options Flow", href: "/app/options-flow", icon: Activity },
+  { name: "Social Sentiment", href: "/app/social-sentiment", icon: MessageCircle },
+  { name: "Value Predictor", href: "/app/value-predictor", icon: Calculator },
 ];
 
 export default function Sidebar() {
