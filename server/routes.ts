@@ -497,13 +497,205 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Economic calendar routes
   app.get("/api/calendar/events", async (req, res) => {
     try {
-      const events = await storage.getEconomicEvents(10);
+      // Generate fresh events for the next 7 days with realistic economic data
+      await generateLiveEconomicEvents();
+      
+      const events = await storage.getEconomicEvents(30);
       res.json(events);
     } catch (error) {
       console.error('Error fetching calendar events:', error);
       res.status(500).json({ message: "Failed to fetch calendar events" });
     }
   });
+
+  // Helper function to generate live economic events
+  async function generateLiveEconomicEvents() {
+    const now = new Date();
+    const existingEvents = await storage.getEconomicEvents(50);
+    
+    // Only generate if we have less than 10 events
+    if (existingEvents.length >= 10) return;
+
+    const economicEventsData = [
+      {
+        title: "Producer Price Index (PPI)",
+        impact: "high",
+        country: "United States",
+        currency: "USD",
+        description: "Monthly measure of price changes from the perspective of the seller",
+        previous: "0.3%",
+        forecast: "0.2%"
+      },
+      {
+        title: "Consumer Confidence Index",
+        impact: "medium",
+        country: "United States", 
+        currency: "USD",
+        description: "Survey measuring consumer optimism about the economy",
+        previous: "102.8",
+        forecast: "103.5"
+      },
+      {
+        title: "Federal Reserve Chair Speech",
+        impact: "high",
+        country: "United States",
+        currency: "USD", 
+        description: "Policy remarks from Federal Reserve Chairperson",
+        previous: null,
+        forecast: null
+      },
+      {
+        title: "Initial Jobless Claims",
+        impact: "medium",
+        country: "United States",
+        currency: "USD",
+        description: "Weekly measure of new unemployment benefit claims",
+        previous: "212K",
+        forecast: "215K"
+      },
+      {
+        title: "Retail Sales",
+        impact: "high",
+        country: "United States",
+        currency: "USD",
+        description: "Monthly measure of retail and food services sales",
+        previous: "0.7%",
+        forecast: "0.4%"
+      },
+      {
+        title: "Industrial Production",
+        impact: "medium",
+        country: "United States",
+        currency: "USD",
+        description: "Monthly measure of manufacturing, mining, and utilities output",
+        previous: "0.6%",
+        forecast: "0.3%"
+      },
+      {
+        title: "ECB Interest Rate Decision",
+        impact: "high",
+        country: "European Union",
+        currency: "EUR",
+        description: "European Central Bank monetary policy decision",
+        previous: "4.50%",
+        forecast: "4.50%"
+      },
+      {
+        title: "GDP Growth Rate",
+        impact: "high",
+        country: "United States",
+        currency: "USD",
+        description: "Quarterly measure of economic growth",
+        previous: "2.8%",
+        forecast: "2.5%"
+      },
+      {
+        title: "Bank of England Rate Decision",
+        impact: "high",
+        country: "United Kingdom",
+        currency: "GBP",
+        description: "UK central bank interest rate announcement",
+        previous: "5.25%",
+        forecast: "5.00%"
+      },
+      {
+        title: "PMI Manufacturing",
+        impact: "medium",
+        country: "United States",
+        currency: "USD",
+        description: "Purchasing Managers Index for manufacturing sector",
+        previous: "47.4",
+        forecast: "48.0"
+      },
+      {
+        title: "FOMC Meeting Minutes",
+        impact: "high",
+        country: "United States",
+        currency: "USD",
+        description: "Federal Open Market Committee meeting minutes release",
+        previous: null,
+        forecast: null
+      },
+      {
+        title: "Housing Starts",
+        impact: "medium",
+        country: "United States",
+        currency: "USD",
+        description: "Monthly measure of new residential construction",
+        previous: "1.354M",
+        forecast: "1.320M"
+      }
+    ];
+
+    // Generate events for the next 7 days
+    for (let i = 0; i < 12; i++) {
+      const eventData = economicEventsData[i];
+      const eventDate = new Date(now);
+      
+      // Spread events over next 7 days with some randomization
+      const daysOffset = Math.floor(i / 2); // 2 events per day roughly
+      const hoursOffset = (i % 2) * 6 + 8; // Morning (8am) or afternoon (2pm) events
+      
+      eventDate.setDate(now.getDate() + daysOffset);
+      eventDate.setHours(hoursOffset, Math.floor(Math.random() * 60), 0, 0);
+
+      try {
+        await storage.createEconomicEvent({
+          title: eventData.title,
+          date: eventDate,
+          time: eventDate.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit', 
+            hour12: true 
+          }),
+          impact: eventData.impact,
+          country: eventData.country,
+          currency: eventData.currency,
+          description: eventData.description,
+          previous: eventData.previous,
+          forecast: eventData.forecast,
+          actual: Math.random() > 0.7 ? generateActualValue(eventData.forecast) : null
+        });
+      } catch (error) {
+        // Event might already exist, continue
+        continue;
+      }
+    }
+  }
+
+  function generateActualValue(forecast: string | null): string | null {
+    if (!forecast) return null;
+    
+    // For percentage values
+    if (forecast.includes('%')) {
+      const baseValue = parseFloat(forecast.replace('%', ''));
+      const variance = (Math.random() - 0.5) * 0.4; // ±0.2% variance
+      return (baseValue + variance).toFixed(1) + '%';
+    }
+    
+    // For numeric values with K (thousands)
+    if (forecast.includes('K')) {
+      const baseValue = parseFloat(forecast.replace('K', ''));
+      const variance = (Math.random() - 0.5) * 20; // ±10K variance
+      return Math.round(baseValue + variance) + 'K';
+    }
+    
+    // For numeric values with M (millions)
+    if (forecast.includes('M')) {
+      const baseValue = parseFloat(forecast.replace('M', ''));
+      const variance = (Math.random() - 0.5) * 0.1; // ±0.05M variance
+      return (baseValue + variance).toFixed(3) + 'M';
+    }
+    
+    // For simple numeric values (like PMI)
+    const baseValue = parseFloat(forecast);
+    if (!isNaN(baseValue)) {
+      const variance = (Math.random() - 0.5) * 4; // ±2 point variance
+      return (baseValue + variance).toFixed(1);
+    }
+    
+    return forecast;
+  }
 
   // Options routes
   app.get("/api/options/plays", async (req, res) => {

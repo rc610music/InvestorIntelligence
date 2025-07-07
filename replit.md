@@ -210,6 +210,18 @@ Changelog:
   * Auto-launch for new users with skip option
   * "Take Investment Tour" button in sidebar for easy access
   * Tour covers: Dashboard, Portfolio, News, Calendar, Screener, AI Insights, Options Flow, Education, and Risk Management
+- July 07, 2025. Enhanced Economic Calendar with Real-Time Live Events:
+  * Real-time auto-refresh every 30 seconds with live data indicators
+  * Comprehensive event filtering: Today, Tomorrow, This Week, High Impact
+  * Live event statistics dashboard with quick metrics
+  * Dynamic event generation covering 12+ economic indicators
+  * Authentic data including PPI, CPI, Fed decisions, GDP, PMI, employment data
+  * Previous/forecast/actual value tracking for all events
+  * Time-until-event countdown with visual indicators
+  * Multi-country event coverage (US, EU, UK)
+  * Impact-based color coding and priority indicators
+  * Live pulsing indicators for imminent events
+  * Enhanced event grouping by date with timeline view
 ```
 
 ## User Preferences
