@@ -201,6 +201,15 @@ Changelog:
   * Updated browser title and meta descriptions for better SEO
   * Integrated brand icon into sidebar, mobile header, and favicon
   * Enhanced professional appearance with consistent branding
+- July 07, 2025. Added Interactive Onboarding Tour with Investment Tips:
+  * Created comprehensive investment education tour system
+  * Three skill levels: Basic, Intermediate, Advanced
+  * Interactive tour with 10 educational steps covering platform features
+  * Investment tips and best practices for each feature
+  * Progress tracking and completion rewards
+  * Auto-launch for new users with skip option
+  * "Take Investment Tour" button in sidebar for easy access
+  * Tour covers: Dashboard, Portfolio, News, Calendar, Screener, AI Insights, Options Flow, Education, and Risk Management
 ```
 
 ## User Preferences

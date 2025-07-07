@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useOnboardingTour } from "@/hooks/use-onboarding-tour";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Portfolio from "@/pages/portfolio";
@@ -22,6 +23,7 @@ import Disclaimer from "@/pages/disclaimer";
 import Sidebar from "@/components/layout/sidebar";
 import MobileHeader from "@/components/layout/mobile-header";
 import MobileNav from "@/components/layout/mobile-nav";
+import OnboardingTour from "@/components/onboarding/onboarding-tour";
 
 function Router() {
   return (
@@ -47,6 +49,7 @@ function Router() {
 
 function App() {
   const isMobile = useIsMobile();
+  const { isOpen, closeTour } = useOnboardingTour();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -65,6 +68,7 @@ function App() {
           {isMobile && <MobileNav />}
         </div>
         <Toaster />
+        <OnboardingTour isOpen={isOpen} onClose={closeTour} />
       </TooltipProvider>
     </QueryClientProvider>
   );

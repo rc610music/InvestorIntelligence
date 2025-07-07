@@ -16,7 +16,8 @@ import {
   Calculator,
   Globe,
   TrendingUp,
-  Scale
+  Scale,
+  GraduationCap
 } from "lucide-react";
 import appIcon from "@assets/20250429_1104_Graphene Stock Tracker Icon_remix_01jt116mh7ek9sdtcr41gyfxeb_1751837863498.png";
 
@@ -116,8 +117,20 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* User Profile */}
-      <div className="p-4 border-t">
+      {/* Tour & User Profile */}
+      <div className="p-4 border-t space-y-3">
+        <button
+          onClick={() => {
+            localStorage.removeItem('stocksense-tour-completed');
+            localStorage.removeItem('stocksense-tour-seen');
+            window.location.reload();
+          }}
+          className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+        >
+          <GraduationCap className="w-4 h-4" />
+          <span className="text-sm font-medium">Take Investment Tour</span>
+        </button>
+        
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
             <span className="text-sm font-medium">AJ</span>
