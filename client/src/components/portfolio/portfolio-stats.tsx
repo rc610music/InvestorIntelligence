@@ -1,13 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, TrendingUp, Layers, Target, ArrowUp, ArrowDown } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function PortfolioStats() {
-  const { user } = useAuth();
   const { data: summary, isLoading } = useQuery({
-    queryKey: [`/api/portfolio/summary/${user?.id}`],
-    enabled: !!user,
+    queryKey: [`/api/portfolio/summary/demo-user-123`],
   });
 
   if (isLoading) {

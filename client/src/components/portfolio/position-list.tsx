@@ -2,13 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
 
 export default function PositionList() {
-  const { user } = useAuth();
   const { data: positions = [], isLoading } = useQuery({
-    queryKey: [`/api/portfolio/positions/${user?.id}`],
-    enabled: !!user,
+    queryKey: [`/api/portfolio/positions/demo-user-123`],
   });
 
   if (isLoading) {

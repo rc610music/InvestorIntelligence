@@ -142,9 +142,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Portfolio routes
-  app.get("/api/portfolio/positions/:userId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/portfolio/positions/:userId", async (req, res) => {
     try {
-      const userId = req.user.claims.sub; // Use authenticated user ID
+      const userId = req.params.userId;
       const positions = await storage.getPortfolioPositions(userId);
       res.json(positions);
     } catch (error) {
@@ -216,9 +216,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Portfolio summary
-  app.get("/api/portfolio/summary/:userId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/portfolio/summary/:userId", async (req, res) => {
     try {
-      const userId = req.user.claims.sub; // Use authenticated user ID
+      const userId = req.params.userId;
       const positions = await storage.getPortfolioPositions(userId);
       
       const totalValue = positions.reduce((sum, pos) => sum + parseFloat(pos.marketValue), 0);
